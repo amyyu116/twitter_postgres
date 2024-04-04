@@ -9,10 +9,11 @@ test-data.zip
 
 echo 'load normalized'
 for file in $files; do
-    # call the load_tweets.py file to load data into pg_normalized
+    python3 load_tweets.py --db=postgresql://postgres:pass@localhost:1371 --inputs "$file"
+	# call the load_tweets.py file to load data into pg_normalized
 done
 
 echo 'load denormalized'
 for file in $files; do
-    # use SQL's COPY command to load data into pg_denormalized
+	zcat $file | sed 's/\\u0000//g' | psql postgresql://postgres:pass@localhost:1370/postgres -c "COPY tweets_jsonb (data) FROM STDIN CSV QUOTE e'\x01' DELIMITER e'\x02';"
 done
